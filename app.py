@@ -8,7 +8,7 @@ app = Flask(__name__)
 
 # Set up Google Sheets access
 scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
-creds = ServiceAccountCredentials.from_json_keyfile_name("deft-melody-311520-52fd75ae716d.json", scope)
+creds = ServiceAccountCredentials.from_json_keyfile_name("service_account.json", scope)
 client = gspread.authorize(creds)
 sheet = client.open("MissOdd Assistant Data")
 
