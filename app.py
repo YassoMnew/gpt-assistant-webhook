@@ -1,46 +1,60 @@
+
 from flask import Flask, request, jsonify
-from openai import OpenAI
-import os
+import gspread
+from oauth2client.service_account import ServiceAccountCredentials
+import datetime
 
 app = Flask(__name__)
 
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+# Set up Google Sheets access
+scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
+creds = ServiceAccountCredentials.from_json_keyfile_name("deft-melody-311520-52fd75ae716d.json", scope)
+client = gspread.authorize(creds)
+sheet = client.open("MissOdd Assistant Data")
 
 @app.route("/webhook", methods=["POST"])
-def handle_webhook():
+def webhook():
     data = request.json
-    event_type = data.get("event_type", "unknown")
-    order_id = data.get("order_id", "N/A")
-    email = data.get("email", "N/A")
-    total = data.get("total", "N/A")
-    line_items = data.get("line_items", "N/A")
+    event_type = data.get("event_type")
 
-    prompt = f"""
-You are a helpful assistant for an e-commerce company.
+    if event_type == "order":
+        ws = sheet.worksheet("Shopify")
+        row = [
+            datetime.datetime.now().isoformat(),
+            data.get("order_id", ""),
+            data.get("email", ""),
+            data.get("total_price", ""),
+            data.get("line_items", ""),
+            data.get("summary", "")
+        ]
+        ws.append_row(row)
 
-A new event has occurred:
-- Type: {event_type}
-- Order ID: {order_id}
-- Email: {email}
-- Total: {total}
-- Line Items: {line_items}
+    elif event_type == "product_update":
+        ws = sheet.worksheet("Products")
+        row = [
+            datetime.datetime.now().isoformat(),
+            event_type,
+            data.get("product_id", ""),
+            data.get("title", ""),
+            data.get("vendor", ""),
+            data.get("price", ""),
+            data.get("status", ""),
+            data.get("summary", "")
+        ]
+        ws.append_row(row)
 
-Summarize this event for internal team review.
-"""
+    elif event_type == "customer_update":
+        ws = sheet.worksheet("Customers")
+        row = [
+            datetime.datetime.now().isoformat(),
+            event_type,
+            data.get("customer_id", ""),
+            data.get("email", ""),
+            data.get("total_spent", ""),
+            data.get("orders_count", ""),
+            data.get("tags", ""),
+            data.get("summary", "")
+        ]
+        ws.append_row(row)
 
-    try:
-        response = client.chat.completions.create(
-            model="gpt-4",
-            messages=[{"role": "user", "content": prompt}]
-        )
-        reply = response.choices[0].message.content
-        return jsonify({"status": "ok", "summary": reply})
-    except Exception as e:
-        return jsonify({"status": "error", "message": str(e)}), 500
-
-@app.route("/", methods=["GET"])
-def health_check():
-    return "GPT Assistant Webhook is running!", 200
-
-if __name__ == "__main__":
-    app.run(debug=True)
+    return jsonify({"status": "ok"}), 200
