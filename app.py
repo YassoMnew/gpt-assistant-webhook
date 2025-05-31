@@ -1,4 +1,3 @@
-
 from flask import Flask, request, jsonify
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
@@ -9,7 +8,7 @@ import json
 
 app = Flask(__name__)
 
-# Set up Google Sheets access using env var
+# Set up Google Sheets access using environment variable
 scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
 creds_json = os.environ.get("GOOGLE_CREDENTIALS_B64")
 
@@ -27,20 +26,7 @@ def webhook():
     data = request.json
     event_type = data.get("event_type")
 
-    if event_type == "order":
-        ws = sheet.worksheet("Shopify")
-        row = [
-            datetime.datetime.now().isoformat(),
-            data.get("event_type", ""),
-            data.get("order_id", ""),
-            data.get("email", ""),
-            data.get("total_price", ""),
-            data.get("line_items", ""),
-            data.get("summary", "")
-        ]
-        ws.append_row(row)
-
-    elif event_type == "product_update":
+    if event_type == "product_update":
         ws = sheet.worksheet("Products")
         row = [
             datetime.datetime.now().isoformat(),
@@ -50,21 +36,34 @@ def webhook():
             data.get("vendor", ""),
             data.get("price", ""),
             data.get("status", ""),
-            data.get("summary", "")
+            data.get("summary", ""),
         ]
         ws.append_row(row)
 
-    elif event_type == "customer_update":
+    elif event_type == "customer_create":
         ws = sheet.worksheet("Customers")
         row = [
             datetime.datetime.now().isoformat(),
             data.get("event_type", ""),
             data.get("customer_id", ""),
-            data.get("email", ""),
             data.get("first_name", ""),
             data.get("last_name", ""),
-            data.get("total_spent", ""),
-            data.get("summary", "")
+            data.get("email", ""),
+            data.get("phone", ""),
+            data.get("summary", ""),
+        ]
+        ws.append_row(row)
+
+    elif event_type == "order_create":
+        ws = sheet.worksheet("Shopify")
+        row = [
+            datetime.datetime.now().isoformat(),
+            data.get("event_type", ""),
+            data.get("order_id", ""),
+            data.get("email", ""),
+            data.get("total_price", ""),
+            data.get("line_items", ""),
+            data.get("summary", ""),
         ]
         ws.append_row(row)
 
