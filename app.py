@@ -8,8 +8,11 @@ from oauth2client.service_account import ServiceAccountCredentials
 
 app = Flask(__name__)
 
-# Google Sheets setup
-scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
+# Set up Google Sheets access using env var
+scope = [
+    "https://spreadsheets.google.com/feeds",
+    "https://www.googleapis.com/auth/drive"
+]
 creds_json = os.environ.get("GOOGLE_CREDENTIALS_B64")
 
 if creds_json:
@@ -24,7 +27,7 @@ else:
 @app.route("/webhook", methods=["POST"])
 def webhook():
     data = request.json
-    event_type = data.get("event_type", "")
+    event_type = data.get("event_type")
 
     if event_type == "product_update":
         ws = sheet.worksheet("Products")
@@ -50,7 +53,7 @@ def webhook():
             data.get("total", ""),
             data.get("Line Items", ""),
             data.get("Summary", ""),
-            data.get("summary", "")
+            data.get("gpt_summary", "")
         ]
         ws.append_row(row)
 
@@ -63,8 +66,8 @@ def webhook():
             data.get("email", ""),
             data.get("first_name", ""),
             data.get("last_name", ""),
-            data.get("phone", ""),
-            data.get("summary", "")
+            data.get("summary", ""),
+            data.get("gpt_summary", "")
         ]
         ws.append_row(row)
 
