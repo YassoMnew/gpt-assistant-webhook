@@ -55,7 +55,7 @@ def webhook():
         ]
         ws.append_row(row)
 
-    elif event_type == "customer":
+   elif event_type == "customer":
     ws = sheet.worksheet("Customers")
     row = [
         datetime.datetime.now().isoformat(),
@@ -64,9 +64,10 @@ def webhook():
         data.get("email", ""),
         data.get("name", ""),
         data.get("tags", ""),
-        data.get("summary", ""),  # optional GPT or notes
+        data.get("summary", ""),
     ]
     ws.append_row(row)
+
 
 
 
