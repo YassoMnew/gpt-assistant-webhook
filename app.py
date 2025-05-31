@@ -90,13 +90,9 @@ def summarize_orders():
     ws = sheet.worksheet("Shopify")
     rows = ws.get_all_values()
     header, data = rows[0], rows[1:]
-    total_orders = len(data)
-unfulfilled = [row for row in data if "unfulfilled" in row[6].lower()]
-total_value = sum(float(row[4]) if row[4] else 0 for row in data)
-
-return jsonify({
-    "summary": f"Total orders: {total_orders}, Total value: {total_value}, Unfulfilled orders: {len(unfulfilled)}"
-})
+    recent = data[-10:]
+    total_value = sum(float(row[4]) if row[4] else 0 for row in recent)
+    return jsonify({"summary": f"Latest {len(recent)} orders processed. Total value: {total_value}."})
 
 @app.route("/summary/customers", methods=["GET"])
 def summarize_customers():
