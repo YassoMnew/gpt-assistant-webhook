@@ -40,7 +40,7 @@ def webhook():
         ]
         ws.append_row(row)
 
-    elif event_type == "order":
+    elif event_type in ["order", "order_fulfilled", "order_updated", "order_created", "order_cancelled"]:
         ws = sheet.worksheet("Shopify")
         row = [
             datetime.datetime.now().isoformat(),
@@ -67,20 +67,6 @@ def webhook():
         ]
         ws.append_row(row)
 
-    elif event_type in ["order_fulfilled", "order_updated", "order_created", "order_cancelled"]:
-        ws = sheet.worksheet("Shopify")
-        row = [
-            datetime.datetime.now().isoformat(),
-            event_type,
-            data.get("order_id", ""),
-            data.get("email", ""),
-            data.get("total", ""),
-            data.get("Line Items", ""),
-            data.get("Summary", ""),
-            data.get("gpt_summary", ""),
-        ]
-        ws.append_row(row)
-
     return jsonify({"status": "ok"})
 
 @app.route("/test", methods=["GET"])
@@ -98,3 +84,30 @@ def test():
     ]
     ws.append_row(row)
     return jsonify({"status": "test row added"})
+
+@app.route("/summary/orders", methods=["GET"])
+def summarize_orders():
+    ws = sheet.worksheet("Shopify")
+    rows = ws.get_all_values()
+    header, data = rows[0], rows[1:]
+    recent = data[-10:]
+    total_value = sum(float(row[4]) if row[4] else 0 for row in recent)
+    return jsonify({"summary": f"Latest {len(recent)} orders processed. Total value: {total_value}."})
+
+@app.route("/summary/customers", methods=["GET"])
+def summarize_customers():
+    ws = sheet.worksheet("Customers")
+    rows = ws.get_all_values()
+    header, data = rows[0], rows[1:]
+    count = len(data)
+    tags = set(tag for row in data for tag in row[5].split(",") if tag)
+    return jsonify({"summary": f"{count} customers tracked. Active segments: {', '.join(tags)}."})
+
+@app.route("/summary/products", methods=["GET"])
+def summarize_products():
+    ws = sheet.worksheet("Products")
+    rows = ws.get_all_values()
+    header, data = rows[0], rows[1:]
+    total_products = len(data)
+    published = sum(1 for row in data if row[6].lower() == "published")
+    return jsonify({"summary": f"{total_products} products, {published} are published."})
