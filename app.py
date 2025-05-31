@@ -1,18 +1,15 @@
+from flask import Flask, request, jsonify
 import os
 import base64
 import json
 import datetime
-from flask import Flask, request, jsonify
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 
 app = Flask(__name__)
 
-# Set up Google Sheets access using env var
-scope = [
-    "https://spreadsheets.google.com/feeds",
-    "https://www.googleapis.com/auth/drive"
-]
+# Set up Google Sheets access
+scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
 creds_json = os.environ.get("GOOGLE_CREDENTIALS_B64")
 
 if creds_json:
@@ -27,19 +24,19 @@ else:
 @app.route("/webhook", methods=["POST"])
 def webhook():
     data = request.json
-    event_type = data.get("event_type")
+    event_type = data.get("event_type", "")
 
     if event_type == "product_update":
         ws = sheet.worksheet("Products")
         row = [
             datetime.datetime.now().isoformat(),
-            data.get("event_type", ""),
+            event_type,
             data.get("product_id", ""),
             data.get("title", ""),
             data.get("vendor", ""),
             data.get("price", ""),
             data.get("status", ""),
-            data.get("summary", "")
+            data.get("gpt_summary", ""),
         ]
         ws.append_row(row)
 
@@ -47,13 +44,13 @@ def webhook():
         ws = sheet.worksheet("Shopify")
         row = [
             datetime.datetime.now().isoformat(),
-            data.get("event_type", ""),
+            event_type,
             data.get("order_id", ""),
             data.get("email", ""),
             data.get("total", ""),
             data.get("Line Items", ""),
             data.get("Summary", ""),
-            data.get("gpt_summary", "")
+            data.get("gpt_summary", ""),
         ]
         ws.append_row(row)
 
@@ -61,13 +58,13 @@ def webhook():
         ws = sheet.worksheet("Customers")
         row = [
             datetime.datetime.now().isoformat(),
-            data.get("event_type", ""),
+            event_type,
             data.get("customer_id", ""),
             data.get("email", ""),
             data.get("first_name", ""),
             data.get("last_name", ""),
             data.get("summary", ""),
-            data.get("gpt_summary", "")
+            data.get("gpt_summary", ""),
         ]
         ws.append_row(row)
 
