@@ -41,18 +41,18 @@ def webhook():
         ws.append_row(row)
 
     elif event_type == "order":
-        ws = sheet.worksheet("Shopify")
-        row = [
-            datetime.datetime.now().isoformat(),
-            event_type,
-            data.get("order_id", ""),
-            data.get("email", ""),
-            data.get("total", ""),
-            data.get("Line Items", ""),
-            data.get("Summary", ""),
-            data.get("gpt_summary", ""),
-        ]
-        ws.append_row(row)
+    ws = sheet.worksheet("Shopify")
+    row = [
+        datetime.datetime.now().isoformat(),
+        data.get("event_type", ""),
+        data.get("order_id", ""),
+        data.get("email", ""),
+        data.get("total", ""),
+        data.get("Line Items", ""),
+        data.get("Summary", ""),
+        data.get("summary", "")  # GPT summary placeholder
+    ]
+    ws.append_row(row)
 
     elif event_type == "customer":
         ws = sheet.worksheet("Customers")
