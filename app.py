@@ -55,19 +55,19 @@ def webhook():
         ]
         ws.append_row(row)
 
-    elif event_type == "customer_update":
-        ws = sheet.worksheet("Customers")
-        row = [
-            datetime.datetime.now().isoformat(),
-            event_type,
-            data.get("customer_id", ""),
-            data.get("email", ""),
-            data.get("first_name", ""),
-            data.get("last_name", ""),
-            data.get("summary", ""),
-            data.get("gpt_summary", ""),
-        ]
-        ws.append_row(row)
+    elif event_type == "customer":
+    ws = sheet.worksheet("Customers")
+    row = [
+        datetime.datetime.now().isoformat(),
+        event_type,
+        data.get("customer_id", ""),
+        data.get("name", ""),
+        data.get("email", ""),
+        data.get("tags", ""),
+        data.get("summary", ""),
+    ]
+    ws.append_row(row)
+
 
     return jsonify({"status": "ok"})
 @app.route("/test", methods=["GET"])
