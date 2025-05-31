@@ -111,3 +111,14 @@ def summarize_products():
     total_products = len(data)
     published = sum(1 for row in data if row[6].lower() == "published")
     return jsonify({"summary": f"{total_products} products, {published} are published."})
+    @app.route("/order/<order_id>", methods=["GET"])
+def get_order_detail(order_id):
+    ws = sheet.worksheet("Shopify")
+    rows = ws.get_all_values()
+    header = rows[0]
+    for row in rows[1:]:
+        if row[2] == order_id:
+            result = dict(zip(header, row))
+            return jsonify(result)
+    return jsonify({"error": "Order not found"}), 404
+
