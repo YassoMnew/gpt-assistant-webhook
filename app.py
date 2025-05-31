@@ -1,3 +1,4 @@
+
 from flask import Flask, request, jsonify
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
@@ -39,7 +40,7 @@ def webhook():
         ]
         ws.append_row(row)
 
-    elif event_type == "product":
+    elif event_type == "product_update":
         ws = sheet.worksheet("Products")
         row = [
             datetime.datetime.now().isoformat(),
@@ -47,21 +48,23 @@ def webhook():
             data.get("product_id", ""),
             data.get("title", ""),
             data.get("vendor", ""),
-            data.get("product_type", ""),
-            data.get("status", "")
+            data.get("price", ""),
+            data.get("status", ""),
+            data.get("summary", "")
         ]
         ws.append_row(row)
 
-    elif event_type == "customer":
+    elif event_type == "customer_update":
         ws = sheet.worksheet("Customers")
         row = [
             datetime.datetime.now().isoformat(),
             data.get("event_type", ""),
             data.get("customer_id", ""),
+            data.get("email", ""),
             data.get("first_name", ""),
             data.get("last_name", ""),
-            data.get("email", ""),
-            data.get("phone", "")
+            data.get("total_spent", ""),
+            data.get("summary", "")
         ]
         ws.append_row(row)
 
