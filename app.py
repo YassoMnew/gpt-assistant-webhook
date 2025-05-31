@@ -1,4 +1,3 @@
-
 from flask import Flask, request, jsonify
 import os
 import base64
@@ -55,23 +54,21 @@ def webhook():
         ]
         ws.append_row(row)
 
-   elif event_type == "customer":
-    ws = sheet.worksheet("Customers")
-    row = [
-        datetime.datetime.now().isoformat(),
-        data.get("event_type", ""),
-        data.get("customer_id", ""),
-        data.get("email", ""),
-        data.get("name", ""),
-        data.get("tags", ""),
-        data.get("summary", ""),
-    ]
-    ws.append_row(row)
-
-
-
+    elif event_type == "customer":
+        ws = sheet.worksheet("Customers")
+        row = [
+            datetime.datetime.now().isoformat(),
+            event_type,
+            data.get("customer_id", ""),
+            data.get("email", ""),
+            data.get("name", ""),
+            data.get("tags", ""),
+            data.get("summary", ""),
+        ]
+        ws.append_row(row)
 
     return jsonify({"status": "ok"})
+
 @app.route("/test", methods=["GET"])
 def test():
     ws = sheet.worksheet("Products")
