@@ -70,3 +70,18 @@ def webhook():
         ws.append_row(row)
 
     return jsonify({"status": "ok"})
+@app.route("/test", methods=["GET"])
+def test():
+    ws = sheet.worksheet("Products")
+    row = [
+        datetime.datetime.now().isoformat(),  # timestamp
+        "test",        # event_type
+        "123",         # product_id
+        "Test Product",# title
+        "MissOdd",     # vendor
+        "100",         # price
+        "active",      # status
+        "testing row"  # gpt_summary
+    ]
+    ws.append_row(row)
+    return jsonify({"status": "test row added"})
