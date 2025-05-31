@@ -26,7 +26,7 @@ def webhook():
     data = request.json
     event_type = data.get("event_type")
 
-        if event_type == "order":
+    if event_type == "order":
         ws = sheet.worksheet("Shopify")
         row = [
             datetime.datetime.now().isoformat(),
@@ -65,6 +65,4 @@ def webhook():
         ]
         ws.append_row(row)
 
-
     return jsonify({"status": "ok"})
-    # redeploy
