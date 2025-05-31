@@ -40,7 +40,7 @@ def webhook():
         ]
         ws.append_row(row)
 
-       elif event_type in ["order_fulfilled", "order_updated", "order_created", "order_cancelled"]:
+    elif event_type == "order":
         ws = sheet.worksheet("Shopify")
         row = [
             datetime.datetime.now().isoformat(),
@@ -54,9 +54,6 @@ def webhook():
         ]
         ws.append_row(row)
 
-
-
-
     elif event_type == "customer":
         ws = sheet.worksheet("Customers")
         row = [
@@ -67,6 +64,20 @@ def webhook():
             data.get("name", ""),
             data.get("tags", ""),
             data.get("summary", ""),
+        ]
+        ws.append_row(row)
+
+    elif event_type in ["order_fulfilled", "order_updated", "order_created", "order_cancelled"]:
+        ws = sheet.worksheet("Shopify")
+        row = [
+            datetime.datetime.now().isoformat(),
+            event_type,
+            data.get("order_id", ""),
+            data.get("email", ""),
+            data.get("total", ""),
+            data.get("Line Items", ""),
+            data.get("Summary", ""),
+            data.get("gpt_summary", ""),
         ]
         ws.append_row(row)
 
