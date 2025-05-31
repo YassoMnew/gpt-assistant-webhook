@@ -59,14 +59,15 @@ def webhook():
     ws = sheet.worksheet("Customers")
     row = [
         datetime.datetime.now().isoformat(),
-        event_type,
+        data.get("event_type", ""),
         data.get("customer_id", ""),
-        data.get("name", ""),
         data.get("email", ""),
+        data.get("name", ""),
         data.get("tags", ""),
-        data.get("summary", ""),
+        data.get("summary", ""),  # optional GPT or notes
     ]
     ws.append_row(row)
+
 
 
     return jsonify({"status": "ok"})
